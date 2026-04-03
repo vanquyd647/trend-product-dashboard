@@ -1,7 +1,7 @@
 <template>
   <v-app class="app-shell">
-    <!-- Hero App Bar -->
-    <v-app-bar flat class="hero-bar" height="auto">
+    <!-- Hero Section (non-fixed, scrolls with page) -->
+    <div class="hero-bar">
       <v-container class="hero-container">
         <div class="hero-text">
           <p class="eyebrow">Summer Assortment Update 25.3</p>
@@ -19,7 +19,7 @@
           </v-chip>
         </div>
       </v-container>
-    </v-app-bar>
+    </div>
 
     <v-main>
       <v-container class="py-6">
