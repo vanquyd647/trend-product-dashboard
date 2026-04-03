@@ -1,20 +1,20 @@
 <template>
   <v-app class="app-shell">
     <!-- Hero App Bar -->
-    <v-app-bar flat class="hero-bar" height="96">
-      <v-container class="d-flex flex-column flex-md-row align-start align-md-center justify-space-between ga-3">
-        <div>
+    <v-app-bar flat class="hero-bar" height="auto">
+      <v-container class="hero-container">
+        <div class="hero-text">
           <p class="eyebrow">Summer Assortment Update 25.3</p>
           <h1 class="hero-title">Women Product Intelligence</h1>
         </div>
-        <div class="d-flex flex-wrap ga-2">
-          <v-chip class="stat-chip" color="primary" variant="flat" prepend-icon="mdi-cube-outline">
+        <div class="hero-stats">
+          <v-chip class="stat-chip" color="primary" variant="flat" prepend-icon="mdi-cube-outline" size="small">
             {{ stats.totalProducts }} Products
           </v-chip>
-          <v-chip class="stat-chip" color="secondary" variant="flat" prepend-icon="mdi-store-outline">
+          <v-chip class="stat-chip" color="secondary" variant="flat" prepend-icon="mdi-store-outline" size="small">
             {{ stats.totalBrands }} Brands
           </v-chip>
-          <v-chip class="stat-chip" color="warning" variant="flat" prepend-icon="mdi-percent-outline">
+          <v-chip class="stat-chip" color="warning" variant="flat" prepend-icon="mdi-percent-outline" size="small">
             {{ stats.avgDiscount }}% Avg Discount
           </v-chip>
         </div>
@@ -27,7 +27,7 @@
         <v-card class="filter-card" rounded="xl" elevation="0">
           <v-card-text class="pt-5 pb-4">
             <v-row dense>
-              <v-col cols="12" md="4">
+              <v-col cols="12">
                 <v-text-field
                   v-model.trim="filters.query"
                   label="Search product / brand / AM"
@@ -39,7 +39,7 @@
                   class="filter-input"
                 />
               </v-col>
-              <v-col cols="6" sm="6" md="2">
+              <v-col cols="6" md="2">
                 <v-select
                   v-model="filters.category"
                   :items="categories"
@@ -51,7 +51,7 @@
                   class="filter-input"
                 />
               </v-col>
-              <v-col cols="6" sm="6" md="2">
+              <v-col cols="6" md="2">
                 <v-select
                   v-model="filters.subcategory"
                   :items="subcategories"
@@ -63,7 +63,7 @@
                   class="filter-input"
                 />
               </v-col>
-              <v-col cols="6" sm="6" md="2">
+              <v-col cols="6" md="2">
                 <v-select
                   v-model="filters.am"
                   :items="accountManagers"
@@ -75,7 +75,7 @@
                   class="filter-input"
                 />
               </v-col>
-              <v-col cols="6" sm="6" md="2">
+              <v-col cols="6" md="2">
                 <v-select
                   v-model="filters.sort"
                   :items="sortOptions"
@@ -90,7 +90,7 @@
               </v-col>
             </v-row>
 
-            <div class="d-flex justify-space-between align-center flex-wrap ga-2 mt-4">
+            <div class="filter-actions">
               <v-btn-toggle v-model="currentView" mandatory color="primary" rounded="lg" variant="outlined" density="comfortable">
                 <v-btn value="grid" prepend-icon="mdi-view-grid-outline" size="small">Cards</v-btn>
                 <v-btn value="table" prepend-icon="mdi-table" size="small">Table</v-btn>
@@ -119,12 +119,13 @@
         <!-- Content Area -->
         <template v-else>
           <!-- Grid View -->
-          <v-row v-if="currentView === 'grid'" class="mt-2">
+          <v-row v-if="currentView === 'grid'" class="mt-2 product-grid">
             <v-col
               v-for="(product, index) in paginatedProducts"
               :key="product.id"
-              cols="12"
+              cols="6"
               sm="6"
+              md="4"
               lg="4"
               xl="3"
             >
@@ -174,7 +175,31 @@
 
           <!-- Table View -->
           <v-card v-else class="table-card mt-4" rounded="xl" elevation="0">
-            <v-table class="results-table" fixed-header height="68vh">
+            <!-- Mobile: Card-list style -->
+            <div class="mobile-table-list d-md-none">
+              <div
+                v-for="(product, index) in paginatedProducts"
+                :key="product.id"
+                class="mobile-table-item"
+                @click="openModal(product)"
+              >
+                <img class="mobile-table-thumb" :src="product.linkImage" :alt="product.name" loading="lazy" @error="onImageError">
+                <div class="mobile-table-info">
+                  <p class="mobile-table-brand">{{ product.brand }}</p>
+                  <p class="mobile-table-name">{{ product.name }}</p>
+                  <div class="mobile-table-prices">
+                    <span class="mobile-price-current">{{ formatPrice(product.discountedPrice) }}</span>
+                    <span class="mobile-price-old" v-if="product.originalPrice !== product.discountedPrice">{{ formatPrice(product.originalPrice) }}</span>
+                  </div>
+                  <div class="mobile-table-meta">
+                    <span>{{ product.am }}</span>
+                    <span>{{ formatStock(product.stock) }} stock</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Desktop: Regular table -->
+            <v-table class="results-table d-none d-md-block" fixed-header height="68vh">
               <thead>
                 <tr>
                   <th class="text-center" style="width: 50px">#</th>
@@ -224,7 +249,7 @@
             <v-pagination
               v-model="currentPage"
               :length="totalPages"
-              :total-visible="7"
+              :total-visible="paginationVisible"
               rounded="lg"
               density="comfortable"
               active-color="primary"
@@ -236,11 +261,11 @@
     </v-main>
 
     <!-- Product Detail Dialog -->
-    <v-dialog v-model="isDialogOpen" max-width="980" scrollable>
+    <v-dialog v-model="isDialogOpen" :max-width="dialogMaxWidth" scrollable :fullscreen="isMobile">
       <v-card v-if="selectedProduct" class="detail-dialog" rounded="xl">
         <v-btn icon="mdi-close" variant="text" size="small" class="dialog-close" @click="closeModal" />
 
-        <v-card-text class="pa-6 pa-md-8">
+        <v-card-text class="pa-4 pa-sm-6 pa-md-8">
           <v-row>
             <v-col cols="12" md="5">
               <div class="dialog-image-wrap">
@@ -373,6 +398,18 @@ const copiedProductId = ref('');
 const showBackToTop = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(24);
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+const isMobile = computed(() => windowWidth.value < 600);
+const paginationVisible = computed(() => {
+  if (windowWidth.value < 480) return 3;
+  if (windowWidth.value < 768) return 5;
+  return 7;
+});
+const dialogMaxWidth = computed(() => {
+  if (windowWidth.value < 600) return '100%';
+  return 980;
+});
 
 const filters = reactive({
   query: '',
@@ -577,6 +614,10 @@ function onScroll() {
   showBackToTop.value = window.scrollY > 300;
 }
 
+function onResize() {
+  windowWidth.value = window.innerWidth;
+}
+
 function onKeyDown(event) {
   if (event.key === 'Escape') closeModal();
 }
@@ -587,12 +628,15 @@ watch(selectedProduct, (product) => {
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
   document.addEventListener('keydown', onKeyDown);
   onScroll();
+  onResize();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll);
+  window.removeEventListener('resize', onResize);
   document.removeEventListener('keydown', onKeyDown);
   document.body.style.overflow = '';
 });
