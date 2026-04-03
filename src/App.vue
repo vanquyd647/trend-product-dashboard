@@ -4,19 +4,31 @@
     <div class="hero-bar">
       <v-container class="hero-container">
         <div class="hero-text">
-          <p class="eyebrow">Summer Assortment Update 25.3</p>
-          <h1 class="hero-title">Women Product Intelligence</h1>
+          <p class="eyebrow">{{ $t('hero.eyebrow') }}</p>
+          <h1 class="hero-title">{{ $t('hero.title') }}</h1>
         </div>
-        <div class="hero-stats">
-          <v-chip class="stat-chip" color="primary" variant="flat" prepend-icon="mdi-cube-outline" size="small">
-            {{ stats.totalProducts }} Products
-          </v-chip>
-          <v-chip class="stat-chip" color="secondary" variant="flat" prepend-icon="mdi-store-outline" size="small">
-            {{ stats.totalBrands }} Brands
-          </v-chip>
-          <v-chip class="stat-chip" color="warning" variant="flat" prepend-icon="mdi-percent-outline" size="small">
-            {{ stats.avgDiscount }}% Avg Discount
-          </v-chip>
+        <div class="hero-right">
+          <div class="hero-stats">
+            <v-chip class="stat-chip" color="primary" variant="flat" prepend-icon="mdi-cube-outline" size="small">
+              {{ stats.totalProducts }} {{ $t('hero.products') }}
+            </v-chip>
+            <v-chip class="stat-chip" color="secondary" variant="flat" prepend-icon="mdi-store-outline" size="small">
+              {{ stats.totalBrands }} {{ $t('hero.brands') }}
+            </v-chip>
+            <v-chip class="stat-chip" color="warning" variant="flat" prepend-icon="mdi-percent-outline" size="small">
+              {{ stats.avgDiscount }}% {{ $t('hero.avgDiscount') }}
+            </v-chip>
+          </div>
+          <v-btn
+            class="lang-switch"
+            variant="outlined"
+            size="small"
+            rounded="lg"
+            :prepend-icon="locale === 'vi' ? 'mdi-translate' : 'mdi-translate'"
+            @click="toggleLocale"
+          >
+            {{ $t('lang.switchTo') }}
+          </v-btn>
         </div>
       </v-container>
     </div>
@@ -30,7 +42,7 @@
               <v-col cols="12">
                 <v-text-field
                   v-model.trim="filters.query"
-                  label="Search product / brand / AM"
+                  :label="$t('filter.search')"
                   prepend-inner-icon="mdi-magnify"
                   clearable
                   variant="solo-filled"
@@ -43,7 +55,7 @@
                 <v-select
                   v-model="filters.category"
                   :items="categories"
-                  label="Category"
+                  :label="$t('filter.category')"
                   clearable
                   variant="solo-filled"
                   density="comfortable"
@@ -55,7 +67,7 @@
                 <v-select
                   v-model="filters.subcategory"
                   :items="subcategories"
-                  label="Subcategory"
+                  :label="$t('filter.subcategory')"
                   clearable
                   variant="solo-filled"
                   density="comfortable"
@@ -67,7 +79,7 @@
                 <v-select
                   v-model="filters.am"
                   :items="accountManagers"
-                  label="AM"
+                  :label="$t('filter.am')"
                   clearable
                   variant="solo-filled"
                   density="comfortable"
@@ -78,10 +90,10 @@
               <v-col cols="6" md="2">
                 <v-select
                   v-model="filters.sort"
-                  :items="sortOptions"
+                  :items="localizedSortOptions"
                   item-title="title"
                   item-value="value"
-                  label="Sort"
+                  :label="$t('filter.sort')"
                   variant="solo-filled"
                   density="comfortable"
                   hide-details
@@ -92,8 +104,8 @@
 
             <div class="filter-actions">
               <v-btn-toggle v-model="currentView" mandatory color="primary" rounded="lg" variant="outlined" density="comfortable">
-                <v-btn value="grid" prepend-icon="mdi-view-grid-outline" size="small">Cards</v-btn>
-                <v-btn value="table" prepend-icon="mdi-table" size="small">Table</v-btn>
+                <v-btn value="grid" prepend-icon="mdi-view-grid-outline" size="small">{{ $t('view.cards') }}</v-btn>
+                <v-btn value="table" prepend-icon="mdi-table" size="small">{{ $t('view.table') }}</v-btn>
               </v-btn-toggle>
               <div class="result-text">
                 <v-icon size="16" class="me-1">mdi-filter-variant</v-icon>
@@ -112,8 +124,8 @@
           rounded="xl"
           icon="mdi-magnify-close"
         >
-          <v-alert-title>No products found</v-alert-title>
-          No products match your current filters. Try adjusting your search criteria.
+          <v-alert-title>{{ $t('empty.title') }}</v-alert-title>
+          {{ $t('empty.message') }}
         </v-alert>
 
         <!-- Content Area -->
@@ -149,7 +161,7 @@
                       -{{ discountPct(product) }}%
                     </v-chip>
                     <v-chip v-if="product.stock > 500000" color="warning" size="small" label>
-                      <v-icon start size="12">mdi-fire</v-icon> Hot
+                      <v-icon start size="12">mdi-fire</v-icon> {{ $t('product.hot') }}
                     </v-chip>
                   </div>
                 </div>
@@ -193,7 +205,7 @@
                   </div>
                   <div class="mobile-table-meta">
                     <span>{{ product.am }}</span>
-                    <span>{{ formatStock(product.stock) }} stock</span>
+                    <span>{{ formatStock(product.stock) }} {{ $t('product.stock') }}</span>
                   </div>
                 </div>
               </div>
@@ -203,15 +215,15 @@
               <thead>
                 <tr>
                   <th class="text-center" style="width: 50px">#</th>
-                  <th style="width: 60px">Image</th>
-                  <th>Product</th>
-                  <th>Brand</th>
-                  <th>AM</th>
-                  <th>Category</th>
-                  <th class="text-right">Original</th>
-                  <th class="text-right">Sale</th>
-                  <th class="text-right">Discounted</th>
-                  <th class="text-right">Stock</th>
+                  <th style="width: 60px">{{ $t('table.image') }}</th>
+                  <th>{{ $t('table.product') }}</th>
+                  <th>{{ $t('table.brand') }}</th>
+                  <th>{{ $t('table.am') }}</th>
+                  <th>{{ $t('table.category') }}</th>
+                  <th class="text-right">{{ $t('table.original') }}</th>
+                  <th class="text-right">{{ $t('table.sale') }}</th>
+                  <th class="text-right">{{ $t('table.discounted') }}</th>
+                  <th class="text-right">{{ $t('table.stock') }}</th>
                   <th style="width: 90px"></th>
                 </tr>
               </thead>
@@ -277,10 +289,10 @@
                 <v-chip color="primary" variant="flat" size="small">{{ selectedProduct.subcatLv1 }}</v-chip>
                 <v-chip v-if="selectedProduct.subcatLv2" color="secondary" variant="tonal" size="small">{{ selectedProduct.subcatLv2 }}</v-chip>
                 <v-chip v-if="discountPct(selectedProduct) > 0" color="error" variant="flat" size="small">
-                  -{{ discountPct(selectedProduct) }}% OFF
+                  -{{ discountPct(selectedProduct) }}% {{ $t('dialog.off') }}
                 </v-chip>
                 <v-chip v-if="selectedProduct.stock > 500000" color="warning" variant="flat" size="small">
-                  <v-icon start size="12">mdi-fire</v-icon> Hot Item
+                  <v-icon start size="12">mdi-fire</v-icon> {{ $t('dialog.hotItem') }}
                 </v-chip>
               </div>
             </v-col>
@@ -296,25 +308,25 @@
               <v-row class="mt-3" dense>
                 <v-col cols="6" md="3">
                   <v-sheet class="metric-tile" rounded="lg">
-                    <span>Original</span>
+                    <span>{{ $t('dialog.original') }}</span>
                     <strong>{{ formatPrice(selectedProduct.originalPrice) }}</strong>
                   </v-sheet>
                 </v-col>
                 <v-col cols="6" md="3">
                   <v-sheet class="metric-tile" rounded="lg">
-                    <span>Sale</span>
+                    <span>{{ $t('dialog.sale') }}</span>
                     <strong>{{ formatPrice(selectedProduct.salePrice) }}</strong>
                   </v-sheet>
                 </v-col>
                 <v-col cols="6" md="3">
                   <v-sheet class="metric-tile highlight-tile" rounded="lg">
-                    <span>Discounted</span>
+                    <span>{{ $t('dialog.discounted') }}</span>
                     <strong>{{ formatPrice(selectedProduct.discountedPrice) }}</strong>
                   </v-sheet>
                 </v-col>
                 <v-col cols="6" md="3">
                   <v-sheet class="metric-tile" rounded="lg">
-                    <span>Stock</span>
+                    <span>{{ $t('dialog.stock') }}</span>
                     <strong>{{ selectedProduct.stock.toLocaleString('vi-VN') }}</strong>
                   </v-sheet>
                 </v-col>
@@ -323,15 +335,15 @@
               <v-table density="compact" class="mt-4 details-table">
                 <tbody>
                   <tr>
-                    <td><v-icon size="14" class="me-2">mdi-identifier</v-icon>Product ID</td>
+                    <td><v-icon size="14" class="me-2">mdi-identifier</v-icon>{{ $t('dialog.productId') }}</td>
                     <td class="font-weight-medium">{{ selectedProduct.id }}</td>
                   </tr>
                   <tr>
-                    <td><v-icon size="14" class="me-2">mdi-storefront-outline</v-icon>Shop ID</td>
+                    <td><v-icon size="14" class="me-2">mdi-storefront-outline</v-icon>{{ $t('dialog.shopId') }}</td>
                     <td class="font-weight-medium">{{ selectedProduct.shopId }}</td>
                   </tr>
                   <tr>
-                    <td><v-icon size="14" class="me-2">mdi-account-outline</v-icon>Account Manager</td>
+                    <td><v-icon size="14" class="me-2">mdi-account-outline</v-icon>{{ $t('dialog.accountManager') }}</td>
                     <td class="font-weight-medium">{{ selectedProduct.am }}</td>
                   </tr>
                 </tbody>
@@ -346,7 +358,7 @@
                   rel="noopener"
                   rounded="lg"
                 >
-                  Open TikTok Shop
+                  {{ $t('dialog.openShop') }}
                 </v-btn>
                 <v-btn
                   :color="copiedProductId === selectedProduct.id ? 'success' : 'secondary'"
@@ -355,7 +367,7 @@
                   rounded="lg"
                   @click="copyProductId(selectedProduct.id)"
                 >
-                  {{ copiedProductId === selectedProduct.id ? 'Copied!' : 'Copy Product ID' }}
+                  {{ copiedProductId === selectedProduct.id ? $t('dialog.copied') : $t('dialog.copyId') }}
                 </v-btn>
               </div>
             </v-col>
@@ -379,20 +391,29 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { PRODUCTS as sourceProducts } from './data/products';
 
 const FALLBACK_IMAGE =
   'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 fill=%22%23333%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23181a3b%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2214%22 fill=%22%23666%22%3ENo Image%3C/text%3E%3C/svg%3E';
+const { t, locale } = useI18n();
 
 const sortOptions = [
-  { title: 'Default', value: 'default' },
-  { title: 'Price: Low → High', value: 'price-low' },
-  { title: 'Price: High → Low', value: 'price-high' },
-  { title: 'Discount: Highest', value: 'discount-high' },
-  { title: 'Stock: Highest', value: 'stock-high' },
-  { title: 'Stock: Lowest', value: 'stock-low' },
-  { title: 'Name: A → Z', value: 'name-az' },
+  { title: 'default', value: 'default' },
+  { title: 'priceLow', value: 'price-low' },
+  { title: 'priceHigh', value: 'price-high' },
+  { title: 'discountHigh', value: 'discount-high' },
+  { title: 'stockHigh', value: 'stock-high' },
+  { title: 'stockLow', value: 'stock-low' },
+  { title: 'nameAz', value: 'name-az' },
 ];
+
+const localizedSortOptions = computed(() =>
+  sortOptions.map((opt) => ({
+    title: t(`sort.${opt.title}`),
+    value: opt.value,
+  }))
+);
 
 const currentView = ref('grid');
 const selectedProduct = ref(null);
@@ -565,7 +586,7 @@ const stats = computed(() => {
 const resultsText = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value + 1;
   const end = Math.min(currentPage.value * itemsPerPage.value, filteredProducts.value.length);
-  return `${start}–${end} of ${filteredProducts.value.length} products`;
+  return `${start}–${end} ${t('results.of')} ${filteredProducts.value.length} ${t('results.products')}`;
 });
 
 const isDialogOpen = computed({
@@ -577,6 +598,14 @@ const isDialogOpen = computed({
 
 function cardDelay(index) {
   return `${Math.min(index * 30, 280)}ms`;
+}
+
+function toggleLocale() {
+  const newLocale = locale.value === 'vi' ? 'en' : 'vi';
+  locale.value = newLocale;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('app-locale', newLocale);
+  }
 }
 
 function onImageError(event) {
