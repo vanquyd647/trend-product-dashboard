@@ -256,6 +256,8 @@
               @update:model-value="scrollToTop"
             />
           </div>
+          <!-- Spacer to prevent FAB overlap -->
+          <div class="pagination-bottom-spacer"></div>
         </template>
       </v-container>
     </v-main>
@@ -367,7 +369,7 @@
       class="floating-top"
       icon="mdi-arrow-up"
       color="primary"
-      size="large"
+      :size="isMobile ? 'small' : 'large'"
       elevation="8"
       v-show="showBackToTop"
       @click="scrollToTop"

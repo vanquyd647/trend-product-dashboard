@@ -377,6 +377,12 @@ body {
 .pagination-wrapper {
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pagination-bottom-spacer {
+  height: 0;
 }
 
 .pagination-wrapper .v-pagination__item {
@@ -846,21 +852,26 @@ body {
     display: none;
   }
 
-  /* Floating button */
+  /* Floating button - positioned above pagination zone */
   .floating-top {
-    right: 14px;
-    bottom: 14px;
+    right: 12px;
+    bottom: 68px;
   }
 
   /* Pagination */
   .pagination-wrapper {
     margin-top: 16px !important;
+    padding-bottom: 8px;
+  }
+
+  .pagination-bottom-spacer {
+    height: 56px;
   }
 
   .pagination-wrapper .v-pagination .v-btn {
-    min-width: 32px !important;
-    height: 32px !important;
-    font-size: 0.75rem;
+    min-width: 30px !important;
+    height: 30px !important;
+    font-size: 0.72rem;
   }
 
   /* Dialog - fullscreen on mobile */
